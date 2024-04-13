@@ -1,9 +1,34 @@
-import React from 'react';
-import { Text, View, StyleSheet, TextInput, Pressable } from 'react-native';
-import {ImgButton} from '../components/ImgButton';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, TextInput, Pressable, Alert } from 'react-native';
+import { ImgButton } from '../components/ImgButton';
+
+let nextId = 1; // Initialize ID counter
+
 export default function AddNewToDoScreen({ navigation }) {
-  const handleCancel = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleBack = () => {
     navigation.goBack(); 
+  };
+
+  const handleSave = () => {
+    if (title.trim() !== '' && description.trim() !== '') {
+      const id = Date.now() + Math.random(); // Generate unique ID
+      console.log("Title:", title);
+      console.log("Description:", description);
+  
+      navigation.navigate('Home', {
+        newTodo: { id, title, description }, // Include the generated ID
+        message: 'Todo Added Successfully',
+      });
+  
+      setTitle('');
+      setDescription('');
+    } else {
+      Alert.alert('Todo Added Unsuccessful');
+    }
+  
   };
 
   return (
@@ -14,23 +39,32 @@ export default function AddNewToDoScreen({ navigation }) {
       </View>
       <View style={styles.content}>
         <Text style={styles.label}>Title:</Text>
-        <TextInput style={styles.input}/>
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={text => setTitle(text)}
+        />
         <Text style={styles.label}>Description:</Text>
-        <TextInput style={[styles.input, styles.descriptionInput]} multiline={true} />
+        <TextInput
+          style={[styles.input, styles.descriptionInput]}
+          multiline={true}
+          value={description}
+          onChangeText={text => setDescription(text)}
+        />
       </View>
       <View style={styles.buttonContainer}>
-        <ImgButton name='backspace' label='Cancel' navToDo={handleCancel} />
-      < ImgButton name='save' label='Save'  />
+        <ImgButton name='backspace' label='Back' navToDo={handleBack} />
+        <ImgButton name='save' label='Save' navToDo={handleSave} />
       </View>
     </View>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20, 
-
   },
   header: {
     alignItems: 'center',
@@ -69,7 +103,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    marginBottom:50,
+    marginBottom: 50,
   },
   button: {
     backgroundColor: '#3498db',
