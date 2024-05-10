@@ -1,4 +1,3 @@
-// List.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,7 +12,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { loadProductData, selectProduct } from "../redux/productSlice";
 import { fetchProductsByCategory } from "../service/apiService";
-import { styles } from '../style/style'; // Import styles from styles.js
+import { styles } from '../style/style'; 
 
 const List = ({ route }) => {
   const { category } = route.params;

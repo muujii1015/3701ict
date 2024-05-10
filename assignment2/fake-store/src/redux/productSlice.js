@@ -1,14 +1,13 @@
-// src/redux/productSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchProductByID } from "../service/apiService";
-// Define an initial state
+
 const initialState = {
   productData: {},
   loading: false,
   error: null,
 };
 
-// Create an asynchronous thunk action
 export const loadProductData = createAsyncThunk(
   "loadProduct",
   async (productId, thunkAPI) => {

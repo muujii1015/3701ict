@@ -7,7 +7,7 @@ const Basket = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const totalItems = useSelector((state) => state.cart.totalItems);
-  const totalPrice = useSelector((state) => state.cart.totalPrice.toFixed(2)); // Format total price
+  const totalPrice = useSelector((state) => state.cart.totalPrice.toFixed(2)); 
 
   const handleRemoveItem = (id) => {
     dispatch(removeItem(id));
@@ -55,7 +55,7 @@ const Basket = () => {
       marginRight:150,
     },
     button: {
-      marginHorizontal: 5, // Adjust button margin
+      marginHorizontal: 5, 
     },
     totalContainer: {
       marginTop: 20,
@@ -79,7 +79,7 @@ const Basket = () => {
     },
     title: {
       fontSize: 24,
-      color: '#fff', // White color for text
+      color: '#fff', 
       fontWeight: 'bold',
     }, 
     b:{

@@ -58,5 +58,5 @@ export const cartSlice = createSlice({
 });
 
 export const { addItem, removeItem, increaseQuantity, decreaseQuantity } = cartSlice.actions;
-export const totalItemsSelector = (state) => state.cart.totalItems; // Selector to access totalItems from cart slice
+export const totalItemsSelector = (state) => state.cart.totalItems; 
 export default cartSlice.reducer;
