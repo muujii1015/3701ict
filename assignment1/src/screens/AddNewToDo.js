@@ -12,7 +12,6 @@ export default function AddNewToDoScreen({ navigation }) {
     navigation.goBack(); 
   };
 
-
   const handleSave = () => {
     if (title.trim() !== '' && description.trim() !== '') {
       const id = Date.now() + Math.random(); // Generate unique ID
