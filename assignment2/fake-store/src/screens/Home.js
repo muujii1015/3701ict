@@ -9,14 +9,20 @@ import { useNavigation } from "@react-navigation/native";
 import { loadProductData, selectProduct } from "../redux/productSlice";
 import { fetchCategories, fetchProductsByCategory } from "../service/apiService";
 import { styles } from '../style/style'; 
+import { selectAuth } from '../redux/authSlice';
+import { Alert } from 'react-native';
+
 const Home = () => {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const dispatch = useDispatch();
   const { loading, error } = useSelector(selectProduct);
   const navigation = useNavigation(); 
+  const isAuthenticated = useSelector(selectAuth);
 
   useEffect(() => {
+
+    
     const loadInitialData = async () => {
       try {
         const categoriesData = await fetchCategories();

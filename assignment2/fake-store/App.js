@@ -1,5 +1,6 @@
+// App.js
 import React from "react";
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -9,14 +10,13 @@ import Home from "./src/screens/Home";
 import ListScreen from "./src/screens/List";
 import ProductDetail from "./src/screens/ProductDetail";
 import Basket from "./src/screens/Basket";
-
+import UserProfileScreen from "./src/screens/UserProfile";
+import SignInScreen from "./src/screens/SignIn";
+import SignUpScreen from "./src/screens/SignUp";
+import MyOrders from "./src/screens/MyOrders";
 import { View } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-import cartSlice from "./src/redux/cartSlice";
-import { totalItemsSelector } from "./src/redux/cartSlice"; 
-
 import { Badge } from 'react-native-elements';
-
+import { totalItemsSelector } from "./src/redux/cartSlice";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,10 +31,17 @@ const HomeStack = () => {
   );
 };
 
+const UserStack = () => {
+  return (
+    <Stack.Navigator initialRouteName="SignIn">
+      <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: false }} />
+    </Stack.Navigator>
+  );
+};
+
 const App = () => {
-
-
-
   return (
     <Provider store={store}>
       <NavigationContainer>
@@ -42,12 +49,15 @@ const App = () => {
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
-              const num = useSelector(totalItemsSelector);
-
+              const num = useSelector(totalItemsSelector); 
               if (route.name === "Home") {
                 iconName = focused ? "home" : "home-outline";
               } else if (route.name === "Basket") {
                 iconName = focused ? "basket" : "basket-outline";
+              } else if (route.name === "Profile") {
+                iconName = focused ? "person" : "person-outline";
+              } else if (route.name === "Orders") {
+                iconName = focused ? "list" : "list-outline";
               }
 
               return (
@@ -56,8 +66,8 @@ const App = () => {
                   {route.name === "Basket" && num > 0 && (
                     <Badge
                       value={num}
-                      color={'red'}
-                      containerStyle={{ position: 'absolute', top: -4, right: -4, }}
+                      status="error"
+                      containerStyle={{ position: 'absolute', top: -4, right: -4 }}
                     />
                   )}
                 </View>
@@ -68,16 +78,10 @@ const App = () => {
           tabBarInactiveTintColor="gray"
           tabBarStyle={{ display: "flex" }}
         >
-          <Tab.Screen
-            name="Home"
-            component={HomeStack}
-            options={{ headerShown: false }}
-          />
-          <Tab.Screen
-            name="Basket"
-            component={Basket}
-            options={{ headerShown: false }} 
-          />
+          <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen name="Basket" component={Basket} options={{ headerShown: false }} />
+          <Tab.Screen name="Orders" component={MyOrders} options={{ headerShown: false }} />
+          <Tab.Screen name="Profile" component={UserStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       </NavigationContainer>
     </Provider>

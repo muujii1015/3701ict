@@ -21,74 +21,7 @@ const Basket = () => {
     dispatch(decreaseQuantity(id));
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#f5f5f5",
-      padding: 20,
-    },
-    cartItem: {
-      backgroundColor: "#fff",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: 10,
-      borderRadius: 8,
-      marginBottom: 20,
-      width: 350,
-    },
-    cartItemText: {
-      fontSize: 18,
-    },
-    cartItemImage: {
-      width: 100,
-      height: 100,
-      marginLeft: 10,
-      borderColor: "black",
-      borderWidth: 1,
-      borderRadius: 8,
-    },
-    cartItemActions: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginRight:150,
-    },
-    button: {
-      marginHorizontal: 5, 
-    },
-    totalContainer: {
-      marginTop: 20,
-      alignItems: "center",
-      flexDirection: "row",
-      justifyContent: "space-between",
-    },
-    totalText: {
-      fontSize: 18,
-      fontWeight: "bold",
-      marginBottom: 10,
-    },
-    titleContainer: {
-      marginTop: 50,
-      alignItems: 'center',
-      backgroundColor: '#2196F3', // Blue background
-      paddingVertical: 15,
-      paddingHorizontal: 20,
-      borderRadius: 10,
-      marginBottom: 20,
-    },
-    title: {
-      fontSize: 24,
-      color: '#fff', 
-      fontWeight: 'bold',
-    }, 
-    b:{
-        width: 200,
-        marginLeft: 10,
-    }, emptytext:{
-        marginTop: 200,
-    }
-  });
+  
 
   const renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
@@ -138,5 +71,74 @@ const Basket = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    padding: 20,
+  },
+  cartItem: {
+    backgroundColor: "#fff",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 20,
+    width: 350,
+  },
+  cartItemText: {
+    fontSize: 18,
+  },
+  cartItemImage: {
+    width: 100,
+    height: 100,
+    marginLeft: 10,
+    borderColor: "black",
+    borderWidth: 1,
+    borderRadius: 8,
+  },
+  cartItemActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginRight:150,
+  },
+  button: {
+    marginHorizontal: 5, 
+  },
+  totalContainer: {
+    marginTop: 20,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  titleContainer: {
+    marginTop: 50,
+    alignItems: 'center',
+    backgroundColor: '#2196F3', // Blue background
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    color: '#fff', 
+    fontWeight: 'bold',
+  }, 
+  b:{
+      width: 200,
+      marginLeft: 10,
+  }, emptytext:{
+      marginTop: 200,
+  }
+});
 
 export default Basket;

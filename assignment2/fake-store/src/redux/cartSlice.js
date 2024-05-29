@@ -1,4 +1,37 @@
-import { createSlice } from '@reduxjs/toolkit';
+// src/redux/cartSlice.js
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const baseUrl = "http://localhost:3000/";
+
+export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId) => {
+  const response = await fetch(`${baseUrl}cart/${userId}`);
+  const data = await response.json();
+  await AsyncStorage.setItem('cart', JSON.stringify(data));
+  return data;
+});
+
+export const updateCart = createAsyncThunk('cart/updateCart', async ({ userId, cart }) => {
+  const response = await fetch(`${baseUrl}cart/${userId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(cart),
+  });
+  const data = await response.json();
+  await AsyncStorage.setItem('cart', JSON.stringify(data));
+  return data;
+});
+
+export const clearCartAPI = createAsyncThunk('cart/clearCartAPI', async (userId) => {
+  const response = await fetch(`${baseUrl}cart/${userId}`, {
+    method: 'DELETE',
+  });
+  const data = await response.json();
+  await AsyncStorage.removeItem('cart');
+  return data;
+});
 
 const initialState = {
   items: [],
@@ -54,9 +87,33 @@ export const cartSlice = createSlice({
         }
       }
     },
+    clearCart: (state) => {
+      state.items = [];
+      state.totalItems = 0;
+      state.totalPrice = 0;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.items = action.payload.items;
+        state.totalItems = action.payload.items.reduce((total, item) => total + item.quantity, 0);
+        state.totalPrice = action.payload.items.reduce((total, item) => total + item.price * item.quantity, 0);
+      })
+      .addCase(updateCart.fulfilled, (state, action) => {
+        state.items = action.payload.items;
+        state.totalItems = action.payload.items.reduce((total, item) => total + item.quantity, 0);
+        state.totalPrice = action.payload.items.reduce((total, item) => total + item.price * item.quantity, 0);
+      })
+      .addCase(clearCartAPI.fulfilled, (state) => {
+        state.items = [];
+        state.totalItems = 0;
+        state.totalPrice = 0;
+      });
   },
 });
 
-export const { addItem, removeItem, increaseQuantity, decreaseQuantity } = cartSlice.actions;
-export const totalItemsSelector = (state) => state.cart.totalItems; 
+export const { addItem, removeItem, increaseQuantity, decreaseQuantity, clearCart } = cartSlice.actions;
+export const totalItemsSelector = (state) => state.cart.totalItems;
+export const cartItemsSelector = (state) => state.cart.items;
 export default cartSlice.reducer;
