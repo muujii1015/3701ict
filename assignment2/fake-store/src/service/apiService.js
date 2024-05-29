@@ -1,5 +1,8 @@
 const baseUrl = "http://localhost:3000/";
 
+// ios version  const baseUrl = "http://localhost:3000/";
+// android version const baseUrl = "http://10.0.2.2:3000/";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const fetchCategories = async () => {
