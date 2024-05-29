@@ -1,5 +1,4 @@
-// App.js
-import React from "react";
+import React, { useEffect } from "react";
 import { Provider, useSelector } from 'react-redux';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -17,11 +16,20 @@ import MyOrders from "./src/screens/MyOrders";
 import { View } from "react-native";
 import { Badge } from 'react-native-elements';
 import { totalItemsSelector } from "./src/redux/cartSlice";
+import { selectAuth } from './src/redux/authSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const HomeStack = () => {
+const HomeStack = ({ navigation }) => {
+  const isAuthenticated = useSelector(selectAuth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigation.navigate('Profile');
+    }
+  }, [isAuthenticated, navigation]);
+
   return (
     <Stack.Navigator initialRouteName="HomeScreen" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="HomeScreen" component={Home} />
@@ -29,14 +37,46 @@ const HomeStack = () => {
       <Stack.Screen name="ProductDetail" component={ProductDetail} />
     </Stack.Navigator>
   );
+  
+};
+
+const BasketWithNav = ({ navigation }) => {
+  const isAuthenticated = useSelector(selectAuth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigation.navigate('Profile');
+    }
+  }, [isAuthenticated, navigation]);
+
+  return <Basket />;
+};
+
+const MyOrdersWithNav = ({ navigation }) => {
+  const isAuthenticated = useSelector(selectAuth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigation.navigate('Profile');
+    }
+  }, [isAuthenticated, navigation]);
+
+  return <MyOrders />;
 };
 
 const UserStack = () => {
+  const isAuthenticated = useSelector(selectAuth);
+  
   return (
-    <Stack.Navigator initialRouteName="SignIn">
-      <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: false }} />
+    <Stack.Navigator initialRouteName={isAuthenticated ? "UserProfile" : "SignIn"}>
+      {isAuthenticated ? (
+        <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: false }} />
+      ) : (
+        <>
+          <Stack.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };
@@ -50,6 +90,9 @@ const App = () => {
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
               const num = useSelector(totalItemsSelector); 
+              const isAuthenticated = useSelector(selectAuth);
+              
+
               if (route.name === "Home") {
                 iconName = focused ? "home" : "home-outline";
               } else if (route.name === "Basket") {
@@ -79,8 +122,8 @@ const App = () => {
           tabBarStyle={{ display: "flex" }}
         >
           <Tab.Screen name="Home" component={HomeStack} options={{ headerShown: false }} />
-          <Tab.Screen name="Basket" component={Basket} options={{ headerShown: false }} />
-          <Tab.Screen name="Orders" component={MyOrders} options={{ headerShown: false }} />
+          <Tab.Screen name="Basket" component={BasketWithNav} options={{ headerShown: false }} />
+          <Tab.Screen name="Orders" component={MyOrdersWithNav} options={{ headerShown: false }} />
           <Tab.Screen name="Profile" component={UserStack} options={{ headerShown: false }} />
         </Tab.Navigator>
       </NavigationContainer>

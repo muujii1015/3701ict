@@ -1,13 +1,53 @@
-import React from "react";
-import { View, Text, FlatList, Button, StyleSheet, Image } from "react-native";
+import React, { useEffect, useCallback } from "react";
+import { View, Text, FlatList, Button, StyleSheet, Image, Alert } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { addItem, removeItem, increaseQuantity, decreaseQuantity } from "../redux/cartSlice";
+import { removeItem, increaseQuantity, decreaseQuantity, clearCart, fetchCart, updateCart } from "../redux/cartSlice";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { selectAuth } from '../redux/authSlice';
+import { createOrder } from '../redux/orderSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Basket = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const cartItems = useSelector((state) => state.cart.items);
   const totalItems = useSelector((state) => state.cart.totalItems);
-  const totalPrice = useSelector((state) => state.cart.totalPrice.toFixed(2)); 
+  const totalPrice = useSelector((state) => state.cart.totalPrice.toFixed(2));
+  const isAuthenticated = useSelector(selectAuth);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated) {
+        Alert.alert(
+          "Restricted Access",
+          "You must be signed in to access the shopping cart.",
+          [{ text: "Sign In", onPress: () => navigation.navigate("SignIn") }]
+        );
+        return; 
+      } else {
+        const fetchUserCart = async () => {
+          const userId = await AsyncStorage.getItem('userId');
+          if (userId) {
+            dispatch(fetchCart(userId));
+          }
+        };
+        fetchUserCart();
+      }
+    }, [isAuthenticated, navigation])
+  );
+
+  useEffect(() => {
+    const updateUserCart = async () => {
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId) {
+        dispatch(updateCart({ userId, cart: { items: cartItems } }));
+      }
+    };
+
+    if (cartItems.length > 0) {
+      updateUserCart();
+    }
+  }, [cartItems, dispatch]);
 
   const handleRemoveItem = (id) => {
     dispatch(removeItem(id));
@@ -21,13 +61,32 @@ const Basket = () => {
     dispatch(decreaseQuantity(id));
   };
 
-  
+  const handleCheckout = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      const orderItems = cartItems.map(item => ({
+        prodID: item.id,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+      const actionResult = await dispatch(createOrder({ userId, items: orderItems }));
+      if (createOrder.fulfilled.match(actionResult)) {
+        dispatch(clearCart());
+        Alert.alert("Order Created", "A new order has been created. Thank you for your purchase!", [{ text: "OK" }]);
+      } else {
+        throw new Error(actionResult.error.message || "Failed to create order");
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      Alert.alert("Order Failed", error.message || "Failed to create order");
+    }
+  };
 
   const renderCartItem = ({ item }) => (
     <View style={styles.cartItem}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Image source={{ uri: item.image }} style={styles.cartItemImage} />
-        <View style ={styles.b}>
+        <View style={styles.b}>
           <Text style={styles.cartItemText}>{item.title}</Text>
           <Text>Price: ${item.price.toFixed(2)}</Text>
         </View>
@@ -43,20 +102,13 @@ const Basket = () => {
 
   return (
     <View style={styles.container}>
-      {cartItems.length === 0 ? (
-        <View style={{ flexDirection: "column", alignItems: "center" }}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Shopping Cart</Text>
-        </View>
-
-        <Text style={styles.emptytext}>No items in cart</Text>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Shopping Cart</Text>
       </View>
-
+      {cartItems.length === 0 ? (
+        <Text style={styles.emptytext}>Your Cart is Empty</Text>
       ) : (
-        <View >
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Shopping Cart</Text>
-          </View>
+        <>
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Total Items: {totalItems}</Text>
             <Text style={styles.totalText}>Total Price: ${totalPrice}</Text>
@@ -66,7 +118,8 @@ const Basket = () => {
             renderItem={renderCartItem}
             keyExtractor={(item) => item.id.toString()}
           />
-        </View>
+          <Button title="Check Out" onPress={handleCheckout} />
+        </>
       )}
     </View>
   );
@@ -103,10 +156,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginRight:150,
+    marginRight: 150,
   },
   button: {
-    marginHorizontal: 5, 
+    marginHorizontal: 5,
   },
   totalContainer: {
     marginTop: 20,
@@ -121,8 +174,8 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     marginTop: 50,
-    alignItems: 'center',
-    backgroundColor: '#2196F3', // Blue background
+    alignItems: "center",
+    backgroundColor: "#2196F3",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -130,15 +183,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    color: '#fff', 
-    fontWeight: 'bold',
-  }, 
-  b:{
-      width: 200,
-      marginLeft: 10,
-  }, emptytext:{
-      marginTop: 200,
-  }
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  b: {
+    width: 200,
+    marginLeft: 10,
+  },
+  emptytext: {
+    marginTop: 200,
+  },
 });
 
 export default Basket;

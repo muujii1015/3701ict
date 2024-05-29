@@ -1,4 +1,3 @@
-// apiService.js
 const baseUrl = "http://localhost:3000/";
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +46,7 @@ export const authenticateUser = async (email, password) => {
   }
 };
 
-// Updated function to update user profile
+
 export const updateUserProfile = async (updates) => {
   const token = await AsyncStorage.getItem('userToken');
   if (!token) {
@@ -58,7 +57,7 @@ export const updateUserProfile = async (updates) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`, // Add authentication header
+      'Authorization': `Bearer ${token}`, 
     },
     body: JSON.stringify(updates),
   });
@@ -69,12 +68,12 @@ export const updateUserProfile = async (updates) => {
 
   const data = await response.json();
 
-  // Check the status of the response
+  
   if (data.status !== "OK") {
     throw new Error(data.message || "Error updating profile");
   }
 
-  // Update user data in AsyncStorage
+
   const updatedUser = { ...JSON.parse(await AsyncStorage.getItem('user')), ...updates };
   await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
 
@@ -92,7 +91,7 @@ export const registerUser = async (user) => {
       body: JSON.stringify(user),
     });
 
-    // Log the full response for debugging
+
     console.log("Received response from server:", response);
 
     const data = await response.json();
@@ -110,4 +109,20 @@ export const registerUser = async (user) => {
     throw new Error("Error registering user: " + error.message);
   }
 };
+export const fetchOrders = async () => {
+  const response = await fetch(`${baseUrl}orders`);
+  const data = await response.json();
+  return data.orders;
+};
 
+export const updateOrderStatus = async (order) => {
+  const response = await fetch(`${baseUrl}orders/updateorder`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(order),
+  });
+  const data = await response.json();
+  return data.result;
+};

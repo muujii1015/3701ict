@@ -1,4 +1,3 @@
-// UserProfileScreen.js
 import React, { useState, useEffect } from 'react';
 import { Alert, TextInput, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,7 +12,7 @@ const UserProfileScreen = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -50,7 +49,7 @@ const dispatch = useDispatch();
     setLoading(false);
   };
 
-  const signOut = async () => {
+  const handleSignOut = async () => {
     await AsyncStorage.removeItem('userToken');
     await AsyncStorage.removeItem('user');
     dispatch(signOut());
@@ -74,7 +73,7 @@ const dispatch = useDispatch();
           <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
             <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={signOut}>
+          <TouchableOpacity style={styles.button} onPress={handleSignOut}>
             <Text style={styles.buttonText}>Sign Out</Text>
           </TouchableOpacity>
         </>
@@ -153,7 +152,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    // Add the following style for improved border
+
     inputContainer: {
         borderWidth: 1,
         borderColor: '#ccc',

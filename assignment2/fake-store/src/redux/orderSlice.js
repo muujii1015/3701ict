@@ -1,12 +1,35 @@
-// File: src/redux/orderSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchOrders, updateOrderStatus } from '../service/apiService';
+const baseUrl = "http://localhost:3000/";
 
 const initialState = {
   orders: [],
   loading: false,
   error: null,
 };
+
+export const createOrder = createAsyncThunk('orders/createOrder', async (order, { getState, rejectWithValue }) => {
+  try {
+    const { auth } = getState();
+    const response = await fetch(`${baseUrl}orders/neworder`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${auth.token}`, 
+      },
+      body: JSON.stringify(order),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return rejectWithValue(error.message || 'Failed to create order');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue(error.message);
+  }
+});
 
 export const loadOrders = createAsyncThunk('orders/loadOrders', async (_, thunkAPI) => {
   try {
@@ -32,6 +55,17 @@ const orderSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(createOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders.push(action.payload);
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(loadOrders.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -1,44 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   View,
   Text,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native"; 
-import { loadProductData, selectProduct } from "../redux/productSlice";
-import { fetchCategories, fetchProductsByCategory } from "../service/apiService";
+import { useNavigation, useFocusEffect } from "@react-navigation/native"; 
+import { fetchCategories } from "../service/apiService";
 import { styles } from '../style/style'; 
 import { selectAuth } from '../redux/authSlice';
-import { Alert } from 'react-native';
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
   const dispatch = useDispatch();
-  const { loading, error } = useSelector(selectProduct);
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
   const isAuthenticated = useSelector(selectAuth);
 
-  useEffect(() => {
-
-    
-    const loadInitialData = async () => {
-      try {
-        const categoriesData = await fetchCategories();
-        setCategories(categoriesData);
-      } catch (error) {
-        console.error(error.message);
+  useFocusEffect(
+    useCallback(() => {
+      if (!isAuthenticated) {
+        Alert.alert(
+          "Restricted Access",
+          "You must be signed in to access this page.",
+          [
+           
+            { text: "Sign In", onPress: () => navigation.navigate("Profile") }
+          ]
+        );
+        return; 
       }
-    };
 
-    loadInitialData();
-  }, []);
+      const loadInitialData = async () => {
+        try {
+          const categoriesData = await fetchCategories();
+          setCategories(categoriesData);
+        } catch (error) {
+          console.error("Failed to load categories:", error.message);
+          Alert.alert("Error", "Failed to fetch categories.");
+        }
+      };
+
+      loadInitialData();
+    }, [isAuthenticated, navigation])
+  );
 
   const handleCategorySelect = (category) => {
-    setSelectedCategory(category);
     navigation.navigate("ListScreen", { category });
   };
+
+  
 
   return (
     <View style={styles.container}>
